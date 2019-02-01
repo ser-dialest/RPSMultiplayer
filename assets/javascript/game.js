@@ -14,6 +14,8 @@ var database = firebase.database();
 
 var wins = 0;
 var losses = 0;
+var choices = ["rock", "paper", "scissors"];
+
 
 // function for logging in
 function loginScreen() {
@@ -67,6 +69,7 @@ function chooseArmy(){
     $("body").append(armyBox("green"));
     // make the armies selectable
     $(".army").on("click", function () {
+        $(".army").off("click");
         console.log($(this).attr("id"));
         database.ref().update({
             p1Army: $(this).attr("id")
@@ -98,10 +101,11 @@ function loadGame() {
     // create victory status
     $("body").append("<div>VICTORY AREA</div>");
 
-    $(".army").on("click", function () {
+    $(".choice").on("click", function () {
+        $(".choice").off("click");
         console.log($(this).attr("id"));
         database.ref().update({
-            p1Army: $(this).attr("id")
+            p1Choice: $(this).attr("id")
         });
         loadGame();
     })

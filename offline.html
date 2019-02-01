@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    
+
+
+
+    <script>
+        var wins = 0;
+        var losses = 0;
+        var choices = ["rock", "paper", "scissors"];
+        var name = "";
+        var army = "";
+
+        // function for logging in
+        function loginScreen() {
+            // Clear screen
+            $("body").html("");
+            // create input and button
+            var input = $("<input>");
+            input.attr({"type": "text", "name": "username", "id": "username", "placeholder": "Type name"});
+            var button = $("<button>");
+            button.text("Log In");
+            button.attr({"type": "button", "id": "login"});
+            // add them to the body
+            $("body").append(input);
+            $("body").append(button);
+            
+            // Button gonna log you in
+            button.on("click", function () {
+                event.preventDefault();
+                // Make sure there is a name
+                if (input.val() != "") {
+                    name = input.val();
+                console.log(input.val());
+                // STUFF ABOUT WAITING FOR PLAYER TWO
+                // Move to Army Select
+                chooseArmy();
+                }
+            });
+        };
+        
+        function chooseArmy(){
+            // clear the screen
+            $("body").html("");
+            $("body").css({"height":"300px", "display": "flex","justify-content": "space-around", "align-items": "center"})
+            // Make boxes
+            function armyBox(color) {
+                // create a box
+                var box = $("<div>");
+                // give it a class for clicking and an idea for color selection 
+                box.attr({"class": "army", "id": color});
+                box.css({"height": "100px", "width": "100px", "background": color})
+                return box;
+            }
+            // make the boxes
+            $("body").append(armyBox("orange"));
+            $("body").append(armyBox("blue"));
+            $("body").append(armyBox("yellow"));
+            $("body").append(armyBox("green"));
+            // make the armies selectable
+            $(".army").on("click", function () {
+                $(".army").off("click");
+                console.log($(this).attr("id"));
+                army = $(this).attr("id");
+                loadGame();
+            })
+        }
+
+        function loadGame() {
+            // clear the screen
+            $("body").html("");
+            // creat play are ****
+            $("body").css({"height":"600px", "display": "flex","justify-content": "column", "align-items": "center"});
+            $("body").append("<div>MAP</div>");
+            function choiceBox(choice) {
+                var box = $("<div>");
+                // give it a class for clicking and an idea for color selection 
+                box.attr({"class": "choice", "id": choice});
+                box.css({"height": "100px", "width": "100px",})
+                box.text(choice);
+                return box;
+            }
+            // Add choices
+            $("body").append(choiceBox("rock"));
+            $("body").append(choiceBox("paper"));
+            $("body").append(choiceBox("scissors"));
+            // create victory status
+            $("body").append("<div>VICTORY AREA</div>");
+            roundStart();
+        }
+
+        function roundStart() {
+                $(".choice").on("click", function () {
+                $(".choice").off("click");
+                console.log($(this).attr("id"));
+                choice = $(this).attr("id");
+                roundJudge(choice);
+            })
+        }
+
+        function roundJudge(choice) {
+            var foe = choices[Math.floor(Math.random()*3)]
+            console.log(foe);
+            if (choice === foe) {}
+            else if (choice === "rock") {
+                if (foe === "scissors") {wins++}
+                else {losses++}
+            }
+            else if (choice === "paper") {
+                if (foe === "rock") {wins++}
+                else {losses++}
+            }
+            else {
+                if (foe === "paper") {wins++}
+                else {losses++}
+            }
+            console.log("wins: " + wins + " losses: " + losses);
+            if (wins >= 2) {
+                $("body").html("<p>" + name + " of " + army + " wins</p>");
+            }
+            else if (losses >= 2) {
+                $("body").html("<p>" + name + " of " + army + " loses</p>");
+            }
+            else {
+                roundStart();
+            }
+        }
+        
+        loginScreen();
+    </script>
+</body>
+</html>
