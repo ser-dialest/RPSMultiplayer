@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.8.1/firebase.js"></script>
+    
+</head>
+<body>
+    
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyCMaqmQ3QpoK6L8uFRhvpFyGJoZTbxckLE",
+            authDomain: "aw-rps.firebaseapp.com",
+            databaseURL: "https://aw-rps.firebaseio.com",
+            projectId: "aw-rps",
+            storageBucket: "aw-rps.appspot.com",
+            messagingSenderId: "279238216909"
+        };
+        firebase.initializeApp(config);
+    
+        var database = firebase.database();
+
+        // who is player 1
+        var p1 = "butt";
+        //who is player 2
+        var p2 = "spin";
+        // who are you?
+        var you = {
+            // What is your key in the database?
+            key: "butt",
+            // What is your name?
+            name: "",
+            // What role do you have in this match?
+            role: ""
+        };
+
+        // function for logging in
+        function loginScreen() {
+            // Clear screen
+            $("body").html("");
+            // create input and button
+            var input = $("<input>");
+            input.attr({"type": "text", "name": "username", "id": "username", "placeholder": "Type name"});
+            var button = $("<button>");
+            button.text("Log In");
+            button.attr({"type": "button", "id": "login"});
+            // add them to the body
+            $("body").append(input);
+            $("body").append(button);
+            
+            // Button gonna log you in
+            button.on("click", function () {
+                event.preventDefault();
+                // Make sure there is a name
+                if (input.val() != "") {
+                    name = input.val();
+                    console.log(input.val());
+                    var users = firebase.database().ref('users');
+                    var search = users.orderByChild('name').equalTo(input.val());
+                    search.once('value', function(snapshot) {
+                        if (!snapshot.exists()) {
+                            database.ref("users").push({
+                                name: input.val(),
+                                wins: 0,
+                                losses: 0
+                            }).then(function(snap) {
+                                you.key = snap.key;
+                                you.name = input.val();
+                                console.log(you.key + ' ' + you.name);
+                            })
+                        }
+                        else {
+                            // This line doesn't work
+                            you.key = search.key;
+                            you.name = input.val();
+                            console.log(you.key + ' ' + you.name);
+                        }
+                        console.log(input.val() + ' does '+(snapshot.exists()?'':'not ')+'exist.');
+                        
+                    });
+                    
+                    
+                    // STUFF ABOUT WAITING FOR PLAYER TWO
+                    // Move to Army Select
+                    // chooseArmy();
+                }
+            });
+        };
+
+
+
+
+        database.ref().once("value", function(snapshot) {
+            if (snapshot.val() === null) {
+                database.ref("users").push({
+                    name: "Bob"
+                }).then(function(snap) {
+                    var key = snap.key;
+                    console.log(key);
+                })     
+            }
+        })
+
+        
+        
+        
+        
+        
+        loginScreen();
+    </script>
+</body>
+</html>
