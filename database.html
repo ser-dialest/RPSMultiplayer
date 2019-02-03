@@ -26,17 +26,17 @@
         var database = firebase.database();
 
         // who is player 1
-        var p1 = "butt";
+        var p1 = "poop";
         //who is player 2
-        var p2 = "spin";
+        var p2 = "doop";
         // who are you?
         var you = {
             // What is your key in the database?
-            key: "butt",
+            key: "keybutt",
             // What is your name?
-            name: "",
+            name: "namebutt",
             // What role do you have in this match?
-            role: ""
+            role: "rolebutt"
         };
 
         // function for logging in
@@ -57,54 +57,106 @@
             button.on("click", function () {
                 event.preventDefault();
                 // Make sure there is a name
-                if (input.val() != "") {
-                    name = input.val();
-                    console.log(input.val());
-                    var users = firebase.database().ref('users');
-                    var search = users.orderByChild('name').equalTo(input.val());
+                if (input.val() != "") { 
+                    console.log(input.val()); // check name was entered
+                    // search database for that username
+                    var users = firebase.database().ref('users'); // pull the directory
+                    var search = users.orderByChild('username').equalTo(input.val()); // search keys for matching username
+                    // perform the search
                     search.once('value', function(snapshot) {
+                        // if the user does not exist, create it
                         if (!snapshot.exists()) {
+                            // values created for username and lifetime wins and losses
                             database.ref("users").push({
-                                name: input.val(),
+                                username: input.val(),
                                 wins: 0,
                                 losses: 0
                             }).then(function(snap) {
+                                // local variables are stored for browser to reference player identity
                                 you.key = snap.key;
                                 you.name = input.val();
-                                console.log(you.key + ' ' + you.name);
+                                console.log(you); // checking
                             })
                         }
                         else {
-                            // This line doesn't work
-                            you.key = search.key;
-                            you.name = input.val();
-                            console.log(you.key + ' ' + you.name);
+                            // If user already exists, grab the data key for the user and store to local object for later
+                            database.ref().child('users').orderByChild('username').equalTo(input.val()).once("value", function(snap) {
+                                snapshot.forEach(function(data) {
+                                    you.key = data.key;
+                                    you.name = input.val();
+                                    console.log(you); // checking
+                                });
+                            });
                         }
-                        console.log(input.val() + ' does '+(snapshot.exists()?'':'not ')+'exist.');
-                        
+                        console.log(input.val() + ' does '+(snapshot.exists()?'':'not ')+'exist.'); // checking
+                    }).then(function(snapshot) {
+                        //THEN check ro see if we have a player 1 yet
+                        var players = firebase.database ().ref('players/p1'); // move to folder in database where player 1 would be
+                        players.child('name').once('value', function(snap) {
+                            // if player 1 does not exist, the user becomes player one and values are set
+                            if (!snap.exists()) {
+                                database.ref('players/p1').set({
+                                    name: you.name,
+                                    wins: 0,
+                                    losses: 0,
+                                    army: ''
+                                })
+                                you.role = 'p1';
+                                p1 = you.name;
+                                console.log(you); // checking
+                            }
+                            else { // only if there is a player 1
+                                // check if there is a player 2. 
+                                // This code is not as dry as it could be, but the database maniputlation has gotten in my way.
+                                var players = firebase.database ().ref('players/p2'); // move to folder in database where player 2 would be
+                                players.child('name').once('value', function(snap) {
+                                    // if player 2 does not exist, the user becomes player one and values are set
+                                    if (!snap.exists()) {
+                                        database.ref('players/p2').set({
+                                            name: you.name,
+                                            wins: 0,
+                                            losses: 0,
+                                            army: ''
+                                        })
+                                        you.role = 'p2';
+                                        p2 = you.name;
+                                        console.log(you); // checking
+                                    }
+                                    else { // if player 1 and 2 both exist
+                                        console.log("There are already 2 players");
+                                        // IDEALLY, PLAYERS WILL BE ABLE TO SPECTATE GAMES AND THEN PLAY AGAINST THE WINNER
+                                        // THIS FEATURE IS NOT IMPLEMENTED YET 
+                                    }
+                                });
+                            }
+                        })
                     });
+                }
+            });
                     
                     
                     // STUFF ABOUT WAITING FOR PLAYER TWO
                     // Move to Army Select
                     // chooseArmy();
-                }
-            });
         };
 
+    
 
 
 
-        database.ref().once("value", function(snapshot) {
-            if (snapshot.val() === null) {
-                database.ref("users").push({
-                    name: "Bob"
-                }).then(function(snap) {
-                    var key = snap.key;
-                    console.log(key);
-                })     
-            }
-        })
+
+
+        // This was too learn
+        // database.ref().once("value", function(snapshot) {
+        //     if (snapshot.val() === null) {
+        //         database.ref("users").push({
+        //             name: "Bob"
+        //         }).then(function(snap) {
+        //             var key = snap.key;
+        //             console.log(key);
+        //         })     
+        //     }
+        // })
 
         
         
