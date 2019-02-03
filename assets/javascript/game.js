@@ -244,8 +244,10 @@ function loadGame() {
         $("body").append("<div>VICTORY AREA</div>");
         // Start the round!
         roundStart();
-    }, 7000);
+    }, 500);
 }
+
+var checkFoe;
 
 // Playing a round
 function roundStart() {
@@ -267,55 +269,82 @@ function roundStart() {
                     p1choice: you.choice,
                 });
                 // if the other player selected already, move to judgement
-                if (p2.choice != '') {
-                    roundJudge();
-                }
+                checkFoe = setInterval(function() {
+                    console.log("check");
+                    database.ref('game').child('p2choice').once('value', function(snap) {
+                        p2.choice = snap.val();
+                    }).then(function() {
+                        if (p2.choice != '') {
+                            roundJudge();
+                        }
+                    });
+                }, 1000);
             }
+
             // else you must be p2. WET code alert
             else {
                 p2.choice = you.choice;
                 database.ref('game').update({
                     p2choice: you.choice,
                 });
-                if (p1.choice != '') {
-                    roundJudge();
-                } 
+                checkFoe = setInterval(function() {
+                    console.log("check");
+                    database.ref('game').child('p1choice').once('value', function(snap) {
+                        p1.choice = snap.val();
+                    }).then(function() {
+                        if (p1.choice != '') {
+                            roundJudge();
+                        }
+                    });
+                }, 1000);
             }
         })
     }
 
-    // How to respond to other players picking
-    function roundChoice(pVar, pString, pNot) {
-        // Only execute if you are not the first player listed
-        if (you.role != pString) {
-            // has there been a change to opponent choice?
-            database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
-                // Update local variable with that change
-                pVar.choice = snapshot.val();
-                console.log(pString + " became " + pVar.choice);
-                // if it became something
-                if (pVar.choice != "") {
-                    // The spectator gets to see what the player chose
-                    if (you.role === "spectator") {
-                        $("#" + pVar.army).append(pString);
-                    }
-                    // Check if you have made your choice yet. If so, move to judgement
-                    database.ref('game').child(pNot + 'choice').once('value', function(snap) {
-                        if (snap.val() != '') {
-                            roundJudge();
-                        }
-                    })
-                }
-            });
-        };
-    };
+
+
+
+
+
+
+
+
+
+
+
+    // // How to respond to other players picking
+    // function roundChoice(pVar, pString, pNot) {
+    //     // Only execute if you are not the first player listed
+    //     if (you.role != pString) {
+    //         // has there been a change to opponent choice?
+    //         database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
+    //             // Update local variable with that change
+    //             pVar.choice = snapshot.val();
+    //             console.log(pString + " became " + pVar.choice);
+    //             // if it became something
+    //             if (pVar.choice != "") {
+    //                 // The spectator gets to see what the player chose
+    //                 if (you.role === "spectator") {
+    //                     $("#" + pVar.army).append(pString);
+    //                 }
+    //                 // Check if you have made your choice yet. If so, move to judgement
+    //                 database.ref('game').child(pNot + 'choice').once('value', function(snap) {
+    //                     if (snap.val() != '') {
+    //                         roundJudge();
+    //                     }
+    //                 })
+    //             }
+    //         });
+    //     };
+    // };
     // respond to other player choices
-    roundChoice(p1, "p1", "p2");
-    roundChoice(p2, "p2", "p1");
+    // roundChoice(p1, "p1", "p2");
+    // roundChoice(p2, "p2", "p1");
 }
 
 // Judge the winner from the choices
 function roundJudge() {
+    clearInterval(checkFoe);
     // Delay to make sure the database has caught up with us
     setTimeout(function() {
         console.log("P1: " + p1.choice + " P2: " + p2.choice) // Checking
@@ -343,37 +372,37 @@ function roundJudge() {
             p2wins: p2.wins
         })
 
-        // if (p1.wins >= 2) {
-        //     $("body").html("<p>" + p1.name + " of " + p1.army + " wins</p>");
-        //     if (you.role === "p1") {
-        //         you.wins++;
-        //         database.ref('users/' + you.key).update({
-        //             wins: you.wins
-        //         })
-        //     }
-        //     if (you.role === "p2") {
-        //         you.losses++;
-        //         database.ref('users/' + you.key).update({
-        //             losses: you.losses
-        //         })
-        //     }
-        // }
-        // else if (p2.wins >= 2) {
-        //     $("body").html("<p>" + p2.name  + " of " + p2.army + " loses</p>");
-        //     if (you.role === "p2") {
-        //         you.wins++;
-        //         database.ref('users/' + you.key).update({
-        //             wins: you.wins
-        //         })
-        //     }
-        //     if (you.role === "p1") {
-        //         you.losses++;
-        //         database.ref('users/' + you.key).update({
-        //             losses: you.losses
-        //         })
-        //     }
-        // }
-        // else {
+        if (p1.wins >= 2) {
+            $("body").html("<p>" + p1.name + " of " + p1.army + " wins</p>");
+            if (you.role === "p1") {
+                you.wins++;
+                database.ref('users/' + you.key).update({
+                    wins: you.wins
+                })
+            }
+            if (you.role === "p2") {
+                you.losses++;
+                database.ref('users/' + you.key).update({
+                    losses: you.losses
+                })
+            }
+        }
+        else if (p2.wins >= 2) {
+            $("body").html("<p>" + p2.name  + " of " + p2.army + " loses</p>");
+            if (you.role === "p2") {
+                you.wins++;
+                database.ref('users/' + you.key).update({
+                    wins: you.wins
+                })
+            }
+            if (you.role === "p1") {
+                you.losses++;
+                database.ref('users/' + you.key).update({
+                    losses: you.losses
+                })
+            }
+        }
+        else {
             p1.choice = "";
             p2.choice = "";
             you.choice = "";
@@ -382,7 +411,7 @@ function roundJudge() {
                 p2choice: "",
             })
             roundStart();
-        // }
+        }
     } , 2000);
 }
 
