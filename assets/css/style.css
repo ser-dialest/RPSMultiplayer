@@ -1,0 +1,15 @@
+@font-face {
+    font-family: 'advance_wars_2_gbaregular';
+    src: url('../fonts/advance-wars-2-gba-webfont.woff') format('woff2'),
+         url('../fonts/advance-wars-2-gba-webfont.woff2') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body {
+    background-image: url('../images/Background3.png');
+    font-family: 'advance_wars_2_gbaregular';
+    font-size: 27px;
+
+}

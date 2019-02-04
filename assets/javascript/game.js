@@ -414,22 +414,26 @@ function roundJudge() {
         }
     } , 2000);
 }
+// variables for scrolling the background
+var backT = 0;
+var sheetPos = 0;
 
-// This was to learn
-// database.ref().once("value", function(snapshot) {
-//     if (snapshot.val() === null) {
-//         database.ref("users").push({
-//             name: "Bob"
-//         }).then(function(snap) {
-//             var key = snap.key;
-//             console.log(key);
-//         })     
-//     }
-// })
+// function to scroll background
+function backgroundScroll(timestamp) {
+    if (backT % 2 === 0) {
+        sheetPos -= 3;
+        $("body").css("backgroundPositionX", sheetPos + "px");
+        $("body").css("backgroundPositionY", -sheetPos + "px");
+    }
+    // console.log(backT);
+    backT++;
+    requestAnimationFrame(backgroundScroll);
+}
 
-
-
-
-
+requestAnimationFrame(backgroundScroll);
 
 loginScreen();
+
+
+
+
