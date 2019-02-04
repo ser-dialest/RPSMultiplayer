@@ -47,6 +47,7 @@ button {
     width: 80%;
     margin: auto;
     position: relative;
+    display: block;
 }
 
 #dialogue {
@@ -131,4 +132,19 @@ button {
     height: 48px;
     width: 72px;
     background-image: url('../images/2P3.png');
+}
+
+#match-status {
+    display: flex;
+    flex-direction: column;
+    padding: 0% 5%;
+    width: 100%;
+}
+
+.status {
+    background-image: url('../images/Road3.png');
+    display:flex;
+    justify-content: space-between;
+    height:154px;
+    width:100%;
 }

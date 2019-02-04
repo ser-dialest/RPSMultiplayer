@@ -11,30 +11,38 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-// who is player 1
-var p1 = {name: "", army: "", choice: "", wins: 0};
-//who is player 2
-var p2 = {name: "", army: "", choice: "", wins: 0};
-// who are you?
-var you = {
-    // What is your key in the database?
-    key: "keybutt",
-    // What is your name?
-    name: "namebutt",
-    // What role do you have in this match?
-    role: "rolebutt",
-    // What army do you command?
-    army: "",
-    // What did you pick this round?
-    choice: "",
-    // How many times have you won or lost before?
-    wins: 0,
-    losses: 0
+var p1, p2, you;
+// return all values to original
+function varReset() {
+    // who is player 1
+    p1 = {name: "", army: "", choice: "", wins: 0};
+    //who is player 2
+    p2 = {name: "", army: "", choice: "", wins: 0};
+    // who are you?
+    you = {
+        // What is your key in the database?
+        key: "",
+        // What is your name?
+        name: "",
+        // What role do you have in this match?
+        role: "",
+        // What army do you command?
+        army: "",
+        // What did you pick this round?
+        choice: "",
+        // How many times have you won or lost before?
+        wins: 0,
+        losses: 0
+    };
 };
 
 // function for logging in
 function loginScreen() {
     // opening visuals
+    // reset everything
+    $("body").html("");
+    var newArea = $("<div id='play-area'>");
+    $("body").append(newArea);
     // picture of Nell
     var nell = $("<img src='assets/images/Nell3.png' id='nell' />");
     $("#play-area").append(nell);
@@ -66,17 +74,17 @@ function loginScreen() {
             var users = firebase.database().ref('users'); // pull the directory
             var search = users.orderByChild('username').equalTo(input.val()); // search keys for matching username
             // perform the search
-            search.once('value', function(snapshot) {
+            search.once('value', function(snap1) {
                 // if the user does not exist, create it
-                if (!snapshot.exists()) {
+                if (!snap1.exists()) {
                     // values created for username and lifetime wins and losses
                     database.ref("users").push({
                         username: input.val(),
                         wins: 0,
                         losses: 0
-                    }).then(function(snap) {
+                    }).then(function(snap2) {
                         // local variables are stored for browser to reference player identity
-                        you.key = snap.key;
+                        you.key = snap2.key;
                         you.name = input.val();
                         you.wins = 0;
                         you.losses = 0;
@@ -84,22 +92,22 @@ function loginScreen() {
                 }
                 else {
                     // If user already exists, grab the data key for the user and store to local object for later
-                    database.ref().child('users').orderByChild('username').equalTo(input.val()).once("value", function(snap) {
-                        snapshot.forEach(function(data) {
+                    database.ref().child('users').orderByChild('username').equalTo(input.val()).once("value", function(snap3) {
+                        snap3.forEach(function(data) {
                             you.key = data.key;
                             you.name = input.val();
                         });
-                        database.ref('users/' + you.key).once('value', function(snap) {
-                            you.wins = snap.val().wins,
-                            you.losses = snap.val().losses
+                        database.ref('users/' + you.key).once('value', function(snap4) {
+                            you.wins = snap4.val().wins,
+                            you.losses = snap4.val().losses
                         })
                     });
                 }
-            }).then(function(snapshot) {
+            }).then(function() {
                 // Then check to see if we have a player 1 yet
-                firebase.database().ref('game').child('p1name').once('value', function(snap) {
+                firebase.database().ref('game').child('p1name').once('value', function(snap5) {
                     // if player 1 does not exist, the user becomes player one and values are set
-                    if (!snap.exists()) {
+                    if (!snap5.exists()) {
                         database.ref('game').set({
                             p1name: you.name,
                             p1army: '',
@@ -116,8 +124,8 @@ function loginScreen() {
                     else { // only if there is a player 1
                         // check if there is a player 2. 
                         // if player 2 does not exist, the user becomes player one and values are set
-                        firebase.database().ref('game').child('p2name').once('value', function(snap) {
-                            if (snap.val() === "") {
+                        firebase.database().ref('game').child('p2name').once('value', function(snap6) {
+                            if (snap6.val() === "") {
                                 database.ref('game').update({
                                     p2name: you.name,
                                 })
@@ -201,17 +209,17 @@ function chooseArmy(){
             // if you aren't the one being picked
             if (you.role != pString) {
                 // check to see if your opponent chose an army yet
-                database.ref('game').child(pString + 'army').on('value', function(snapshot) {
+                database.ref('game').child(pString + 'army').on('value', function(snap7) {
                     // update the local variable for the enemy army 
-                    pVar.army = snapshot.val();
+                    pVar.army = snap7.val();
                     // if it got updated to be something
                     if (pVar.army != "") {
                         // mark the option and make it unclickable
                         $("#" + pVar.army).append("<div id=" + pString + ">");
                         $("#" + pVar.army).off("click");
                         // Have you selected anything yet?
-                        database.ref('game').child(pNot + 'army').once('value', function(snap) {
-                            if (snap.val() != '') {
+                        database.ref('game').child(pNot + 'army').once('value', function(snap8) {
+                            if (snap8.val() != '') {
                                 // If so, load the game
                                 loadGame();
                             }
@@ -231,10 +239,24 @@ function chooseArmy(){
 // loading the play area
 function loadGame() {
     setTimeout(function() {
+        // Get the names of both players
+        database.ref('game').once("value", function (snap9) {
+            p1.name = snap9.val().p1name;
+            p2.name = snap9.val().p2name;
+        });
         // clear the screen
         $("#play-area").html("");
         // creat play area ****
-        $("#play-area").css({"height":"600px", "display": "flex","justify-content": "column", "align-items": "center"});
+        $("#play-area").css({"height":"720px", "display": "flex","flex-direction": "column", "align-items": "center"});
+        // Visulaization of wins this match
+        var matchStatus = $("<div id='match-status'>");
+        var p1Status = $("<div class='status' id='p1-status'>");
+        var p2Status = $("<div class='status' id='p2-status'>");
+        matchStatus.append(p1Status);
+        matchStatus.append(p2Status);
+        console.log(matchStatus);
+        $("#play-area").append(matchStatus);
+        
         $("#play-area").append("<div>MAP</div>");
         // the function that creates the RPS boxes
         function choiceBox(choice) {
@@ -250,7 +272,6 @@ function loadGame() {
         $("#play-area").append(choiceBox("paper"));
         $("#play-area").append(choiceBox("scissors"));
         // create victory status
-        $("#play-area").append("<div>VICTORY AREA</div>");
         // Start the round!
         roundStart();
     }, 500);
@@ -280,8 +301,8 @@ function roundStart() {
                 // if the other player selected already, move to judgement
                 checkFoe = setInterval(function() {
                     console.log("check");
-                    database.ref('game').child('p2choice').once('value', function(snap) {
-                        p2.choice = snap.val();
+                    database.ref('game').child('p2choice').once('value', function(snap10) {
+                        p2.choice = snap10.val();
                     }).then(function() {
                         if (p2.choice != '') {
                             roundJudge();
@@ -298,8 +319,8 @@ function roundStart() {
                 });
                 checkFoe = setInterval(function() {
                     console.log("check");
-                    database.ref('game').child('p1choice').once('value', function(snap) {
-                        p1.choice = snap.val();
+                    database.ref('game').child('p1choice').once('value', function(snap11) {
+                        p1.choice = snap11.val();
                     }).then(function() {
                         if (p1.choice != '') {
                             roundJudge();
@@ -342,7 +363,7 @@ function roundJudge() {
         })
 
         if (p1.wins >= 2) {
-            $("#play-area").html("<p>" + p1.name + " of " + p1.army + " wins</p>");
+            $("#play-area").html("<p>" + p1.name + " of " + p1.army + " wins!</p>");
             if (you.role === "p1") {
                 you.wins++;
                 database.ref('users/' + you.key).update({
@@ -355,9 +376,10 @@ function roundJudge() {
                     losses: you.losses
                 })
             }
+            gameReset();
         }
         else if (p2.wins >= 2) {
-            $("#play-area").html("<p>" + p2.name  + " of " + p2.army + " loses</p>");
+            $("#play-area").html("<p>" + p2.name  + " of " + p2.army + " wins!</p>");
             if (you.role === "p2") {
                 you.wins++;
                 database.ref('users/' + you.key).update({
@@ -370,6 +392,7 @@ function roundJudge() {
                     losses: you.losses
                 })
             }
+            gameReset();
         }
         else {
             p1.choice = "";
@@ -383,6 +406,22 @@ function roundJudge() {
         }
     } , 2000);
 }
+
+// Reset the server for next game
+function gameReset() {
+    setTimeout(function() {
+        $("#play-area").html("");
+        database.ref('game').remove();
+    }, 4000);
+    setTimeout(function() {
+        varReset();
+        console.log(you);
+        console.log($("#play-area"));
+        loginScreen();
+    }, 4000);
+}
+
+
 // variables for scrolling the background
 var backT = 0;
 var sheetPos = 0;
@@ -419,7 +458,7 @@ function dialogue() {
     requestAnimationFrame(boxRise);
 }
 
-
+varReset();
 requestAnimationFrame(backgroundScroll);
 loginScreen();
 
