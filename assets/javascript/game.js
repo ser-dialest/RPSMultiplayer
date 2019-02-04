@@ -34,18 +34,29 @@ var you = {
 
 // function for logging in
 function loginScreen() {
-    // Clear screen
-    $("body").html("");
-    // create input and button
+    // opening visuals
+    // picture of Nell
+    var nell = $("<img src='assets/images/Nell3.png' id='nell' />");
+    $("#play-area").append(nell);
+    // dialogue box comes up after brief delay
+    setTimeout(function() {dialogue()}, 1000);
+    // first line: Welcome to Advance Wars: Rock Paper Scissors
+    setTimeout(function() {
+        $("#text").append("<p>Welcome to Advance Wars: Rock Paper Scissors!</p>");
+    }, 1500);
+    // Second line: Please enter your name
+    setTimeout(function() {
+        $("#nell-face").css("background-image", "url('assets/images/NellFace3.png')");
+        $("#text p").html("Please enter your name.")
+    }, 3500)
+    // Input Field and button
     var input = $("<input>");
     input.attr({"type": "text", "name": "username", "id": "username", "placeholder": "Type name"});
     var button = $("<button>");
-    button.text("Log In");
     button.attr({"type": "button", "id": "login"});
-    // add them to the body
-    $("body").append(input);
-    $("body").append(button);
-    
+    // add them to the #play-area
+    $("#play-area").append(input);
+    $("#play-area").append(button);    
     // Button gonna log you in
     button.on("click", function () {
         event.preventDefault();
@@ -124,39 +135,36 @@ function loginScreen() {
         // Don't do nothing if they ain't put in no name!
         }
     });
-            
-            
-            // STUFF ABOUT WAITING FOR PLAYER TWO
-            // Move to Army Select
-            // chooseArmy();
 };
 
-
-// Imported from offline version
+// Choose army 
 function chooseArmy(){
     // I need a brief delay here to make sure everything is loaded from the database
     setTimeout(function () { 
+        setTimeout(function () {dialogue();}, 1000);
+        setTimeout(function() {
+            $("#text").append("<p>Choose your army and CO.</p>");
+        }, 1500);
         // clear the screen
-        $("body").html("");
-        $("body").css({"height":"300px", "display": "flex","justify-content": "space-around", "align-items": "center"})
+        $("#play-area").html("");
+        $("#play-area").css({"display": "flex","justify-content": "space-around", "align-items": "center"})
         // Make boxes
         function armyBox(color) {
             // create a box
             var box = $("<div>");
             // give it a class for clicking and an idea for color selection 
             box.attr({"class": "army", "id": color});
-            box.css({"height": "100px", "width": "100px", "background": color})
             return box;
         }
         // make the army boxes
-        $("body").append(armyBox("orange"));
-        $("body").append(armyBox("blue"));
-        $("body").append(armyBox("yellow"));
-        $("body").append(armyBox("green"));
+        $("#play-area").append(armyBox("orange"));
+        $("#play-area").append(armyBox("blue"));
+        $("#play-area").append(armyBox("yellow"));
+        $("#play-area").append(armyBox("green"));
 
         // Don't let it be clickable if it's a spectator
         if (you.role === "spectator") {
-            $("body").prepend("<p>You are spectating</p>")
+            $("#play-area").prepend("<p>You are spectating</p>")
         }
         else {
             // make the armies selectable
@@ -168,6 +176,7 @@ function chooseArmy(){
                     database.ref('game').update({
                         p1army: you.army
                     });
+                    $("#" + you.army).append("<div id='p1'>");
                     p1.army = you.army;
                     if (p2.army != '') {
                         loadGame()
@@ -178,6 +187,7 @@ function chooseArmy(){
                     database.ref('game').update({
                         p2army: you.army
                     });
+                    $("#" + you.army).append("<div id='p2'>");                    
                     p2.army = you.army;
                     if (p1.army != '') {
                         loadGame()
@@ -197,8 +207,7 @@ function chooseArmy(){
                     // if it got updated to be something
                     if (pVar.army != "") {
                         // mark the option and make it unclickable
-                        $("#" + pVar.army).css("background", "gray");
-                        $("#" + pVar.army).text(pString);
+                        $("#" + pVar.army).append("<div id=" + pString + ">");
                         $("#" + pVar.army).off("click");
                         // Have you selected anything yet?
                         database.ref('game').child(pNot + 'army').once('value', function(snap) {
@@ -223,10 +232,10 @@ function chooseArmy(){
 function loadGame() {
     setTimeout(function() {
         // clear the screen
-        $("body").html("");
+        $("#play-area").html("");
         // creat play area ****
-        $("body").css({"height":"600px", "display": "flex","justify-content": "column", "align-items": "center"});
-        $("body").append("<div>MAP</div>");
+        $("#play-area").css({"height":"600px", "display": "flex","justify-content": "column", "align-items": "center"});
+        $("#play-area").append("<div>MAP</div>");
         // the function that creates the RPS boxes
         function choiceBox(choice) {
             var box = $("<div>");
@@ -237,11 +246,11 @@ function loadGame() {
             return box;
         }
         // Add choices
-        $("body").append(choiceBox("rock"));
-        $("body").append(choiceBox("paper"));
-        $("body").append(choiceBox("scissors"));
+        $("#play-area").append(choiceBox("rock"));
+        $("#play-area").append(choiceBox("paper"));
+        $("#play-area").append(choiceBox("scissors"));
         // create victory status
-        $("body").append("<div>VICTORY AREA</div>");
+        $("#play-area").append("<div>VICTORY AREA</div>");
         // Start the round!
         roundStart();
     }, 500);
@@ -300,46 +309,6 @@ function roundStart() {
             }
         })
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    // // How to respond to other players picking
-    // function roundChoice(pVar, pString, pNot) {
-    //     // Only execute if you are not the first player listed
-    //     if (you.role != pString) {
-    //         // has there been a change to opponent choice?
-    //         database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
-    //             // Update local variable with that change
-    //             pVar.choice = snapshot.val();
-    //             console.log(pString + " became " + pVar.choice);
-    //             // if it became something
-    //             if (pVar.choice != "") {
-    //                 // The spectator gets to see what the player chose
-    //                 if (you.role === "spectator") {
-    //                     $("#" + pVar.army).append(pString);
-    //                 }
-    //                 // Check if you have made your choice yet. If so, move to judgement
-    //                 database.ref('game').child(pNot + 'choice').once('value', function(snap) {
-    //                     if (snap.val() != '') {
-    //                         roundJudge();
-    //                     }
-    //                 })
-    //             }
-    //         });
-    //     };
-    // };
-    // respond to other player choices
-    // roundChoice(p1, "p1", "p2");
-    // roundChoice(p2, "p2", "p1");
 }
 
 // Judge the winner from the choices
@@ -373,7 +342,7 @@ function roundJudge() {
         })
 
         if (p1.wins >= 2) {
-            $("body").html("<p>" + p1.name + " of " + p1.army + " wins</p>");
+            $("#play-area").html("<p>" + p1.name + " of " + p1.army + " wins</p>");
             if (you.role === "p1") {
                 you.wins++;
                 database.ref('users/' + you.key).update({
@@ -388,7 +357,7 @@ function roundJudge() {
             }
         }
         else if (p2.wins >= 2) {
-            $("body").html("<p>" + p2.name  + " of " + p2.army + " loses</p>");
+            $("#play-area").html("<p>" + p2.name  + " of " + p2.army + " loses</p>");
             if (you.role === "p2") {
                 you.wins++;
                 database.ref('users/' + you.key).update({
@@ -430,10 +399,70 @@ function backgroundScroll(timestamp) {
     requestAnimationFrame(backgroundScroll);
 }
 
-requestAnimationFrame(backgroundScroll);
+// function for dialogue box pup up
+function dialogue() {
+    console.log("dialogue");
+    var dialogueBox = $("<div id='dialogue'>");
+    var nellFace = $("<div id='nell-face'>");
+    dialogueBox.append(nellFace);
+    var textBox = $("<div id='text'>");
+    dialogueBox.append(textBox);
+    $("#play-area").append(dialogueBox);
+    var boxY = -144;
+    function boxRise(timestamp) {
+        if (boxY < 0) {
+            boxY +=12;
+            dialogueBox.css("bottom", boxY + "px");
+            requestAnimationFrame(boxRise)
+        }
+    }
+    requestAnimationFrame(boxRise);
+}
 
+
+requestAnimationFrame(backgroundScroll);
 loginScreen();
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+    // // How to respond to other players picking
+    // function roundChoice(pVar, pString, pNot) {
+    //     // Only execute if you are not the first player listed
+    //     if (you.role != pString) {
+    //         // has there been a change to opponent choice?
+    //         database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
+    //             // Update local variable with that change
+    //             pVar.choice = snapshot.val();
+    //             console.log(pString + " became " + pVar.choice);
+    //             // if it became something
+    //             if (pVar.choice != "") {
+    //                 // The spectator gets to see what the player chose
+    //                 if (you.role === "spectator") {
+    //                     $("#" + pVar.army).append(pString);
+    //                 }
+    //                 // Check if you have made your choice yet. If so, move to judgement
+    //                 database.ref('game').child(pNot + 'choice').once('value', function(snap) {
+    //                     if (snap.val() != '') {
+    //                         roundJudge();
+    //                     }
+    //                 })
+    //             }
+    //         });
+    //     };
+    // };
+    // respond to other player choices
+    // roundChoice(p1, "p1", "p2");
+    // roundChoice(p2, "p2", "p1");

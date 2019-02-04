@@ -4,12 +4,131 @@
          url('../fonts/advance-wars-2-gba-webfont.woff2') format('woff');
     font-weight: normal;
     font-style: normal;
-
 }
 
 body {
     background-image: url('../images/Background3.png');
     font-family: 'advance_wars_2_gbaregular';
-    font-size: 27px;
+    font-size: 48px;
+    position: absolute;
+    width: 100%;
 
+}
+
+input {
+    background-color: black;
+    background-image: url('../images/NameInput3.png');
+    position: absolute;
+    right: 10%;
+    top: 42px;
+    width: 300px;
+    height: 90px;
+    border: none;
+    font-family: 'advance_wars_2_gbaregular';
+    font-size: 48px;
+    padding: 12px 0px 0px 18px;
+    box-sizing: border-box;
+}
+
+button {
+    position: absolute;
+    top: 138px;
+    right: 10%;
+    background-image: url('../images/OK3.png');
+    height: 42px;
+    width: 90px;
+    box-sizing: border-box;
+    border: none;
+}
+
+#play-area {
+    height: 480px;
+    max-width: 720px;
+    width: 80%;
+    margin: auto;
+    position: relative;
+}
+
+#dialogue {
+    position: absolute;
+    bottom: -144px;
+    background-image: url('../images/MessageBox3.png');
+    background-size: 100% 144px;
+    width: 100%;
+    height: 144px;
+}
+
+#text {
+    position: absolute;
+    bottom: 0px;
+    left: 144px;
+    top:0px;
+    right:0px;
+}
+
+#text p {
+    position: absolute;
+    top: 24px;
+    left: 36px;
+    
+}
+
+#nell {
+    position: absolute;
+    width: 228px;
+    /* top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px; */
+    left: 0px;
+    display: block;
+    margin: auto;
+}
+
+#nell-face {
+    position: absolute;
+    left: 0px;
+    background-image: url('../images/NellBlink3.png');
+    height: 144px;
+    width: 144px;
+}
+
+.army {
+    height: 105px;
+    width: 150px;
+    position: relative;
+}
+
+#orange {
+    background-image: url('../images/Andy3.png');
+}
+
+#blue {
+    background-image: url('../images/Olaf3.png');
+}
+
+#yellow {
+    background-image: url('../images/Kanbei3.png');
+}
+
+#green {
+    background-image: url('../images/Eagle3.png');
+}
+
+#p1 {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 48px;
+    width: 72px;
+    background-image: url('../images/1P3.png');
+}
+
+#p2 {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 48px;
+    width: 72px;
+    background-image: url('../images/2P3.png');
 }
