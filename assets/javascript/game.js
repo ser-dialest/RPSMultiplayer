@@ -155,7 +155,7 @@ function chooseArmy(){
         }, 1500);
         // clear the screen
         $("#play-area").html("");
-        $("#play-area").css({"display": "flex","justify-content": "space-around", "align-items": "center"})
+        $("#play-area").css({"display": "flex","justify-content": "space-between", "align-items": "center"})
         // Make boxes
         function armyBox(color) {
             // create a box
@@ -247,11 +247,25 @@ function loadGame() {
         // clear the screen
         $("#play-area").html("");
         // creat play area ****
-        $("#play-area").css({"height":"720px", "display": "flex","flex-direction": "column", "align-items": "center"});
+        $("#play-area").css({"height":"720px", "display": "flex", "flex-direction": "column", "align-items": "center"});
         // Visulaization of wins this match
         var matchStatus = $("<div id='match-status'>");
         var p1Status = $("<div class='status' id='p1-status'>");
+        // Eventually, this will be auromated as 
+        // the players will be able to select the number of rounds they want in th ematch
+        p1Status.append(" \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/" + p1.army + "HQ3.png' /> \
+        ");
         var p2Status = $("<div class='status' id='p2-status'>");
+        p2Status.append(" \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/City3.png' /> \
+        <img src='assets/images/" + p2.army + "HQ3.png' /> \
+        ");
         matchStatus.append(p1Status);
         matchStatus.append(p2Status);
         console.log(matchStatus);
@@ -263,14 +277,16 @@ function loadGame() {
             var box = $("<div>");
             // give it a class for clicking and an idea for color selection 
             box.attr({"class": "choice", "id": choice});
-            box.css({"height": "100px", "width": "100px",})
-            box.text(choice);
+            box.append("<img src='assets/images/" + choice + "3.png' >");
+            box.append("<img src='assets/images/" + you.army + choice + "3.png' >");
             return box;
         }
         // Add choices
-        $("#play-area").append(choiceBox("rock"));
-        $("#play-area").append(choiceBox("paper"));
-        $("#play-area").append(choiceBox("scissors"));
+        $("#play-area").append("<div id='choices'>");
+
+        $("#choices").append(choiceBox("Tank"));
+        $("#choices").append(choiceBox("BCoptr"));
+        $("#choices").append(choiceBox("AA"));
         // create victory status
         // Start the round!
         roundStart();
@@ -341,18 +357,18 @@ function roundJudge() {
         // If it's a tie, no wins go up
         if (p1.choice === p2.choice) {}
 
-        else if (p1.choice === "rock") {
-            if (p2.choice === "scissors") {p1.wins++}
+        else if (p1.choice === "Tank") {
+            if (p2.choice === "AA") {p1.wins++}
             else {p2.wins++}
         }
 
-        else if (p1.choice === "paper") {
-            if (p2.choice === "rock") {p1.wins++}
+        else if (p1.choice === "BCoptr") {
+            if (p2.choice === "Tank") {p1.wins++}
             else {p2.wins++}
         }
 
         else {
-            if (p2.choice === "paper") {p1.wins++}
+            if (p2.choice === "BCoptr") {p1.wins++}
             else {p2.wins++}
         }
 
