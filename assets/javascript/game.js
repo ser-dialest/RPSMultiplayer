@@ -147,6 +147,9 @@ function loginScreen() {
 
 // Choose army 
 function chooseArmy(){
+    if (you.role != "spectator") {
+        database.ref('game').onDisconnect().remove();
+    };
     // I need a brief delay here to make sure everything is loaded from the database
     setTimeout(function () { 
         setTimeout(function () {dialogue();}, 1000);
@@ -492,3 +495,4 @@ function dialogue() {
 varReset();
 requestAnimationFrame(backgroundScroll);
 loginScreen();
+
