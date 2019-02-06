@@ -238,6 +238,8 @@ function chooseArmy(){
 
 // loading the play area
 function loadGame() {
+    database.ref('game').child('p1army').off("value");
+    database.ref('game').child('p2army').off("value");
     setTimeout(function() {
         // Get the names of both players
         database.ref('game').once("value", function (snap9) {
@@ -268,10 +270,9 @@ function loadGame() {
         ");
         matchStatus.append(p1Status);
         matchStatus.append(p2Status);
-        console.log(matchStatus);
         $("#play-area").append(matchStatus);
         
-        $("#play-area").append("<div>MAP</div>");
+        $("#play-area").append("<div id ='map'>MAP</div>");
         // the function that creates the RPS boxes
         function choiceBox(choice) {
             var box = $("<div>");
@@ -297,79 +298,97 @@ var checkFoe;
 
 // Playing a round
 function roundStart() {
-    // Spectators don't get to choose
+
+    // How to respond to other players picking
+    function roundChoice(pVar, pString, pNot) {
+        // Only execute if you are not the first player listed
+        if (you.role != pString) {
+            // has there been a change to opponent choice?
+            database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
+                // Update local variable with that change
+                pVar.choice = snapshot.val();
+                // if it became something
+                if (pVar.choice != "") {
+                    // The spectator gets to see what the player chose
+                    if (you.role === "spectator") {
+                        $("#" + pVar.army).append(pString);
+                    }
+                    // Check if you have made your choice yet. If so, move to judgement
+                    database.ref('game').child(pNot + 'choice').on('value', function(snap) {
+                        if (snap.val() != '') {
+                            roundJudge();
+                        }
+                    })
+                }
+            });
+        };
+    };
+    // respond to other player choices
+    roundChoice(p1, "p1", "p2");
+    roundChoice(p2, "p2", "p1");
+    // You don't get to click if you are a spectator
     if (you.role != "spectator") {
-        console.log("New Round"); // checking
         // Activate all the choice buttons
         $(".choice").on("click", function () {
             // You only get to pick once
             $(".choice").off("click");
-            // ($(this).attr("id")); I don't know what the purpose of this was supposed to be
             // Set choice from selection div ID
             you.choice = $(this).attr("id");
-            console.log("You chose " + you.choice); // Checking
             // make the selection a p1 selection if you are p1
             if (you.role === "p1") {
                 p1.choice = you.choice;
                 database.ref('game').update({
                     p1choice: you.choice,
                 });
-                // if the other player selected already, move to judgement
-                checkFoe = setInterval(function() {
-                    console.log("check");
-                    database.ref('game').child('p2choice').once('value', function(snap10) {
-                        p2.choice = snap10.val();
-                    }).then(function() {
-                        if (p2.choice != '') {
-                            roundJudge();
-                        }
-                    });
-                }, 1000);
             }
-
-            // else you must be p2. WET code alert
-            else {
+            else { // You must be player 2
                 p2.choice = you.choice;
                 database.ref('game').update({
                     p2choice: you.choice,
                 });
-                checkFoe = setInterval(function() {
-                    console.log("check");
-                    database.ref('game').child('p1choice').once('value', function(snap11) {
-                        p1.choice = snap11.val();
-                    }).then(function() {
-                        if (p1.choice != '') {
-                            roundJudge();
-                        }
-                    });
-                }, 1000);
             }
-        })
+        });
     }
 }
 
 // Judge the winner from the choices
 function roundJudge() {
-    clearInterval(checkFoe);
+    database.ref('game').child('p1choice').off('value');
+    database.ref('game').child('p2choice').off('value');
+    // clearInterval(checkFoe); Let's hope we don't need this anymore.
     // Delay to make sure the database has caught up with us
     setTimeout(function() {
-        console.log("P1: " + p1.choice + " P2: " + p2.choice) // Checking
         // If it's a tie, no wins go up
-        if (p1.choice === p2.choice) {}
+        $("#map").html("<p>" + p1.name + ": " + p1.choice + " vs. " + p2.name + ": " + p2.choice + "</p>");
+        
+        function p1wins() {
+            p1.wins++;
+            $("#map").append("</ br><p>"+ p1.name +" Wins!</p>");
+        }
+
+        function p2wins() {
+            p2.wins++;
+            $("#map").append("</ br><p>"+ p2.name +" Wins!</p>");
+        }
+
+        if (p1.choice === p2.choice) {
+            $("#map").append("</ br><p>Tie!</p>");
+
+        }
 
         else if (p1.choice === "Tank") {
-            if (p2.choice === "AA") {p1.wins++}
-            else {p2.wins++}
+            if (p2.choice === "AA") {p1wins();}
+            else {p2wins()}
         }
 
         else if (p1.choice === "BCoptr") {
-            if (p2.choice === "Tank") {p1.wins++}
-            else {p2.wins++}
+            if (p2.choice === "Tank") {p1wins()}
+            else {p2wins()}
         }
 
         else {
-            if (p2.choice === "BCoptr") {p1.wins++}
-            else {p2.wins++}
+            if (p2.choice === "BCoptr") {p1wins()}
+            else {p2wins()}
         }
 
         console.log("P1 wins: " + p1.wins + " P2 wins: " + p2.wins);
@@ -418,9 +437,9 @@ function roundJudge() {
                 p1choice: "",
                 p2choice: "",
             })
-            roundStart();
+            setTimeout(function() { roundStart(); }, 2000);
         }
-    } , 2000);
+    } , 500);
 }
 
 // Reset the server for next game
@@ -431,8 +450,6 @@ function gameReset() {
     }, 4000);
     setTimeout(function() {
         varReset();
-        console.log(you);
-        console.log($("#play-area"));
         loginScreen();
     }, 4000);
 }
@@ -449,14 +466,12 @@ function backgroundScroll(timestamp) {
         $("body").css("backgroundPositionX", sheetPos + "px");
         $("body").css("backgroundPositionY", -sheetPos + "px");
     }
-    // console.log(backT);
     backT++;
     requestAnimationFrame(backgroundScroll);
 }
 
 // function for dialogue box pup up
 function dialogue() {
-    console.log("dialogue");
     var dialogueBox = $("<div id='dialogue'>");
     var nellFace = $("<div id='nell-face'>");
     dialogueBox.append(nellFace);
@@ -477,47 +492,3 @@ function dialogue() {
 varReset();
 requestAnimationFrame(backgroundScroll);
 loginScreen();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // // How to respond to other players picking
-    // function roundChoice(pVar, pString, pNot) {
-    //     // Only execute if you are not the first player listed
-    //     if (you.role != pString) {
-    //         // has there been a change to opponent choice?
-    //         database.ref('game').child(pString + 'choice').on('value', function(snapshot) {
-    //             // Update local variable with that change
-    //             pVar.choice = snapshot.val();
-    //             console.log(pString + " became " + pVar.choice);
-    //             // if it became something
-    //             if (pVar.choice != "") {
-    //                 // The spectator gets to see what the player chose
-    //                 if (you.role === "spectator") {
-    //                     $("#" + pVar.army).append(pString);
-    //                 }
-    //                 // Check if you have made your choice yet. If so, move to judgement
-    //                 database.ref('game').child(pNot + 'choice').once('value', function(snap) {
-    //                     if (snap.val() != '') {
-    //                         roundJudge();
-    //                     }
-    //                 })
-    //             }
-    //         });
-    //     };
-    // };
-    // respond to other player choices
-    // roundChoice(p1, "p1", "p2");
-    // roundChoice(p2, "p2", "p1");
