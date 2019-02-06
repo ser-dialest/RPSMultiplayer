@@ -40,6 +40,7 @@ function varReset() {
 function loginScreen() {
     // opening visuals
     // reset everything
+    varReset();
     $("body").html("");
     var newArea = $("<div id='play-area'>");
     $("body").append(newArea);
@@ -150,6 +151,16 @@ function chooseArmy(){
     if (you.role != "spectator") {
         database.ref('game').onDisconnect().remove();
     };
+
+    // This doesn't work, but it's supposed to let you know that the other player disconnected.
+    // database.ref('game').on('value', function(snap) {
+    //     if (snap.val() === null) {
+    //         dialogue();
+    //         $("#text").html("<p>Opponent disconnected!</p>")
+    //         setTimeout(function() { loginScreen() }, 2000)
+    //     }
+    // });
+
     // I need a brief delay here to make sure everything is loaded from the database
     setTimeout(function () { 
         setTimeout(function () {dialogue();}, 1000);
@@ -492,7 +503,6 @@ function dialogue() {
     requestAnimationFrame(boxRise);
 }
 
-varReset();
 requestAnimationFrame(backgroundScroll);
 loginScreen();
 
