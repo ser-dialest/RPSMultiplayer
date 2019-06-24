@@ -1,29 +1,36 @@
 # RPS-Multiplayer
 
-This is a rock/paper/scissors style game meant to be played on-line.
-Javascript (and JQuery) are the primary languages. 
+This is an on-line, multi-player rock/paper/scissors-style game utilizing Firebase Realtime Database.
 
-index.html is the hub for everything. All other files are located in the assets directory.
+## Installation
+The app can be accessed on-line at https://ser-dialest.github.io/RPS-Multiplayer/
+It can be run locally by cloning the GitHub repository and opening index.html in the browser of your choice.
+(Internet access is still required when running locally.)
+
+## Player requirements
+It currently requires a second player on a different device or browser.
+A future version will contain the option for single player against a computer opponent with random behavior.
+
+## Program structure
+index.html is the hub for everything. All other used files are located in the assets directory.
 The CSS directory contains a reset file to attempt consistency across platforms.
 All style specific to this site is indicated within the style.css file or controlled dynamically in game.js.
-game.js is where approxiamately all the action happens.
-The multiplayer components are contolled through a Firebase database.
-Images and sounds contain all the visual and auditory assets called by the game. (I blame sounds for the site size.)
+game.js is where all game logic and behavior is contained.
+The multiplayer components are contolled through a Firebase real-time database.
+The directories images and sounds contain all the visual and auditory assets called by the game. 
+(database.html and offline.html are vesigial files unused by the application.)
 
-What should happen:
-The player provides a username.
-The player chooses an army for their avatar.
-The player then waits for an opponent or plays against the computer.
-Both players will choose the number of rounds.
+##Flow of the game
+Players provide their usernames.
+Players choose an army and commander as their avatar.
+The player will then wait for an opponent to do the same.
 
-p1Name, p1Army, p2Name, p2Army p1Ready, p2Ready are stored in the firebase database.
-
-Then the screen appears showing the battle map, the results area, and the three choices.
-When both players have selected their options, the conlict animation will play, then the results animation.
+The player is then presented with the turn selection screen.
+When both players have made their selection, the reult is displayed.
 Wins/Losses stored in firebase.
-The next round follows until one player has emerged victorious often enough to win.
+The next round follows until one player has emerged victorious often enough to win. (Best 2 out of 3.)
 
-Victory and Loss screeen appears and next round is proposed.
+Tanks, Battle Copters, and Anti-Air have a rock/paper/scissors relationship.
 
-
-
+## Copyrights
+While this application has been written by me, Jeffrey Lloyd Heatherly, all assets (sound, images, characters, animation) are copywritten and owned by Nintendo and Intelligent Systems.
